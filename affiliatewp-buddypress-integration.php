@@ -32,11 +32,10 @@ if ( ! function_exists( 'affwp_aas_force_frontend_scripts' ) ){
 */
 add_action( 'bp_setup_nav', 'affiliate_area_bp_nav_adder' );
 function affiliate_area_bp_nav_adder() {
-global $bp;
 	
-	// Add the Affiliate Area (URLs) Tab
+	// Add the Affiliate Area (Dashboard) Tab
 	bp_core_new_nav_item( array(
-		'name' => __('Affiliate Area', 'buddypress'),
+		'name' => __('Affiliate Area', 'affiliatewp-bp'),
 		'slug' => 'affiliate-area',
 		'position' => 3,
 		'show_for_displayed_user' => false,
@@ -47,7 +46,7 @@ global $bp;
 	
 	// Add the Affiliate Area (URLs) Sub Tab
 	bp_core_new_subnav_item( array( 
-		'name' => __('Affiliate URLs', 'buddypress'),
+		'name' => __('Affiliate URLs', 'affiliatewp-bp'),
 		'slug' => 'affiliate-area',
 		'show_for_displayed_user' => false, 
 		'parent_url' => trailingslashit( bp_displayed_user_domain() . 'affiliate-area'),
@@ -60,7 +59,7 @@ global $bp;
 	
 	// Add the Stats Sub Tab
 	bp_core_new_subnav_item( array( 
-		'name' => __('Stats', 'buddypress'),
+		'name' => __('Stats', 'affiliatewp-bp'),
 		'slug' => 'affiliate-stats', 
 		'parent_url' => trailingslashit( bp_displayed_user_domain() . 'affiliate-area'),
 		'parent_slug' => 'affiliate-area',
@@ -72,7 +71,7 @@ global $bp;
 	
 	// Add the Graphs Sub Tab
 	bp_core_new_subnav_item( array( 
-		'name' => __('Graphs', 'buddypress'),
+		'name' => __('Graphs', 'affiliatewp-bp'),
 		'slug' => 'affiliate-graphs', 
 		'parent_url' => trailingslashit( bp_displayed_user_domain() . 'affiliate-area'),
 		'parent_slug' => 'affiliate-area',
@@ -84,7 +83,7 @@ global $bp;
 	
 	// Add the Referrals Sub Tab
 	bp_core_new_subnav_item( array( 
-		'name' => __('Referrals', 'buddypress'),
+		'name' => __('Referrals', 'affiliatewp-bp'),
 		'slug' => 'affiliate-referrals', 
 		'parent_url' => trailingslashit( bp_displayed_user_domain() . 'affiliate-area'),
 		'parent_slug' => 'affiliate-area',
@@ -96,7 +95,7 @@ global $bp;
 	
 	// Add the Visits Sub Tab
 	bp_core_new_subnav_item( array( 
-		'name' => __('Visits', 'buddypress'),
+		'name' => __('Visits', 'affiliatewp-bp'),
 		'slug' => 'affiliate-visits', 
 		'parent_url' => trailingslashit( bp_displayed_user_domain() . 'affiliate-area'),
 		'parent_slug' => 'affiliate-area',
@@ -108,7 +107,7 @@ global $bp;
 
 	// Add the Creatives Sub Tab
 	bp_core_new_subnav_item( array( 
-		'name' => __('Creatives', 'buddypress'),
+		'name' => __('Creatives', 'affiliatewp-bp'),
 		'slug' => 'affiliate-creatives', 
 		'parent_url' => trailingslashit( bp_displayed_user_domain() . 'affiliate-area'),
 		'parent_slug' => 'affiliate-area',
@@ -120,7 +119,7 @@ global $bp;
 	
 	// Add the Settings Sub Tab
 	bp_core_new_subnav_item( array( 
-		'name' => __('Settings', 'buddypress'),
+		'name' => __('Settings', 'affiliatewp-bp'),
 		'slug' => 'affiliate-settings',
 		'show_for_displayed_user' => false, 
 		'parent_url' => trailingslashit( bp_displayed_user_domain() . 'affiliate-area'),
@@ -130,6 +129,60 @@ global $bp;
 		'item_css_id' => 'affiliate-settings',
 		'user_has_access' => bp_is_my_profile()
 	) );
+}
+
+/**
+* Check User Access 
+*
+* @since  1.0
+*/
+function affwp_bp_access_check() {
+
+	$page = '';
+
+	if ( ! is_user_logged_in() ) {
+		// Show login page for logged out users
+		$page = affiliate_wp()->templates->get_template_part( 'login' );
+	} else{
+			if( ! affwp_is_affiliate() && affiliate_wp()->settings->get( 'allow_affiliate_registration' ) ){
+				// Show affiliate registration page if enabled in settings
+				$page = affiliate_wp()->templates->get_template_part( 'register' );
+			} elseif( ! affiliate_wp()->settings->get( 'allow_affiliate_registration' ) && affwp_is_affiliate() ){
+					// Show no access page if registration page disabled in settings
+					$page = affiliate_wp()->templates->get_template_part( 'no', 'access' );
+					}
+		}
+}
+
+/**
+* Add Affiliate Dashboard Notices
+*
+* @since  1.0
+*/
+function affwp_bp_affiliate_area_notices() {
+
+	if ( 'pending' == affwp_get_affiliate_status( affwp_get_affiliate_id() ) ) :
+
+		echo '<p class="affwp-notice">' . __( "Your affiliate account is pending approval", "affiliate-wp" ) . '</p>';
+
+	elseif ( 'inactive' == affwp_get_affiliate_status( affwp_get_affiliate_id() ) ) :
+
+		echo '<p class="affwp-notice">' . __( "Your affiliate account is not active", "affiliate-wp" ) . '</p>';
+
+	elseif ( 'rejected' == affwp_get_affiliate_status( affwp_get_affiliate_id() ) ) :
+
+		echo '<p class="affwp-notice">' . __( "Your affiliate account request has been rejected", "affiliate-wp" ) . '</p>';
+
+	endif;
+
+	if ( ! empty( $_GET['affwp_notice'] ) && 'profile-updated' == $_GET['affwp_notice'] ) :
+
+		echo '<p class="affwp-notice">' . __( "Your affiliate profile has been updated", "affiliate-wp" ) . '</p>';
+
+	endif;
+
+	do_action( 'affwp_affiliate_dashboard_notices', affwp_get_affiliate_id() ); 
+
 }
 
 /**
@@ -145,17 +198,20 @@ function affwp_bp_affiliate_urls() {
 // Get Affiliate URLs Page for BuddyPress Profile Tab
 function affwp_show_bp_affiliate_urls() {
 
-	if ( ! is_user_logged_in() ) {
-		return affiliate_wp()->templates->get_template_part( 'login' );
-	} elseif( ! affwp_is_affiliate() ){
-				return affiliate_wp()->templates->get_template_part( 'register' );
-			}
-
-	echo '<div id="affwp-affiliate-dashboard">';
-
-	affiliate_wp()->templates->get_template_part( 'dashboard-tab', 'urls' );
-
-	echo '</div>';
+	affwp_bp_access_check();
+	
+	if( ! empty( $page ) ) {
+		return $page;
+	} elseif( empty( $page ) ){
+	
+			affwp_bp_affiliate_area_notices();
+			
+			echo '<div id="affwp-affiliate-dashboard">';
+		
+			affiliate_wp()->templates->get_template_part( 'dashboard-tab', 'urls' );
+		
+			echo '</div>';
+		}
 }
 
 /**
@@ -171,17 +227,20 @@ function affwp_bp_affiliate_stats() {
 // Get Affiliate Stats Page for BuddyPress Profile Tab
 function affwp_show_bp_affiliate_stats() {
 
-	if ( ! is_user_logged_in() ) {
-		return affiliate_wp()->templates->get_template_part( 'login' );
-	} elseif( ! affwp_is_affiliate() ){
-				return affiliate_wp()->templates->get_template_part( 'register' );
-			}
-
-	echo '<div id="affwp-affiliate-dashboard">';
-
-	affiliate_wp()->templates->get_template_part( 'dashboard-tab', 'stats' );
-
-	echo '</div>';
+	affwp_bp_access_check();
+	
+	if( ! empty( $page ) ) {
+		return $page;
+	} elseif( empty( $page ) ){
+	
+			affwp_bp_affiliate_area_notices();
+			
+			echo '<div id="affwp-affiliate-dashboard">';
+		
+			affiliate_wp()->templates->get_template_part( 'dashboard-tab', 'stats' );
+		
+			echo '</div>';
+		}
 }
 
 /**
@@ -197,17 +256,20 @@ function affwp_bp_affiliate_graphs() {
 // Get Affiliate Graphs Page for BuddyPress Profile Tab
 function affwp_show_bp_affiliate_graphs() {
 
-	if ( ! is_user_logged_in() ) {
-		return affiliate_wp()->templates->get_template_part( 'login' );
-	} elseif( ! affwp_is_affiliate() ){
-				return affiliate_wp()->templates->get_template_part( 'register' );
-			}
-
-	echo '<div id="affwp-affiliate-dashboard">';
-
-	affiliate_wp()->templates->get_template_part( 'dashboard-tab', 'graphs' );
-
-	echo '</div>';
+	affwp_bp_access_check();
+	
+	if( ! empty( $page ) ) {
+		return $page;
+	} elseif( empty( $page ) ){
+	
+			affwp_bp_affiliate_area_notices();
+			
+			echo '<div id="affwp-affiliate-dashboard">';
+		
+			affiliate_wp()->templates->get_template_part( 'dashboard-tab', 'graphs' );
+		
+			echo '</div>';
+		}
 }
 
 /**
@@ -223,17 +285,20 @@ function affwp_bp_affiliate_referrals() {
 // Get Affiliate Referrals Page for BuddyPress Profile Tab
 function affwp_show_bp_affiliate_referrals() {
 
-	if ( ! is_user_logged_in() ) {
-		return affiliate_wp()->templates->get_template_part( 'login' );
-	} elseif( ! affwp_is_affiliate() ){
-				return affiliate_wp()->templates->get_template_part( 'register' );
-			}
-
-	echo '<div id="affwp-affiliate-dashboard">';
-
-	affiliate_wp()->templates->get_template_part( 'dashboard-tab', 'referrals' );
-
-	echo '</div>';
+	affwp_bp_access_check();
+	
+	if( ! empty( $page ) ) {
+		return $page;
+	} elseif( empty( $page ) ){
+	
+			affwp_bp_affiliate_area_notices();
+			
+			echo '<div id="affwp-affiliate-dashboard">';
+		
+			affiliate_wp()->templates->get_template_part( 'dashboard-tab', 'referrals' );
+		
+			echo '</div>';
+		}
 }
 
 /**
@@ -249,17 +314,20 @@ function affwp_bp_affiliate_visits() {
 // Get Affiliate Visits Page for BuddyPress Profile Tab
 function affwp_show_bp_affiliate_visits() {
 
-	if ( ! is_user_logged_in() ) {
-		return affiliate_wp()->templates->get_template_part( 'login' );
-	} elseif( ! affwp_is_affiliate() ){
-				return affiliate_wp()->templates->get_template_part( 'register' );
-			}
-
-	echo '<div id="affwp-affiliate-dashboard">';
-
-	affiliate_wp()->templates->get_template_part( 'dashboard-tab', 'visits' );
-
-	echo '</div>';
+	affwp_bp_access_check();
+	
+	if( ! empty( $page ) ) {
+		return $page;
+	} elseif( empty( $page ) ){
+	
+			affwp_bp_affiliate_area_notices();
+			
+			echo '<div id="affwp-affiliate-dashboard">';
+		
+			affiliate_wp()->templates->get_template_part( 'dashboard-tab', 'visits' );
+		
+			echo '</div>';
+		}
 }
 
 /**
@@ -275,17 +343,20 @@ function affwp_bp_affiliate_creatives() {
 // Get Affiliate Creatives Page for BuddyPress Profile Tab
 function affwp_show_bp_affiliate_creatives() {
 
-	if ( ! is_user_logged_in() ) {
-		return affiliate_wp()->templates->get_template_part( 'login' );
-	} elseif( ! affwp_is_affiliate() ){
-				return affiliate_wp()->templates->get_template_part( 'register' );
-			}
-
-	echo '<div id="affwp-affiliate-dashboard">';
-
-	affiliate_wp()->templates->get_template_part( 'dashboard-tab', 'creatives' );
-
-	echo '</div>';
+	affwp_bp_access_check();
+	
+	if( ! empty( $page ) ) {
+		return $page;
+	} elseif( empty( $page ) ){	
+	
+			affwp_bp_affiliate_area_notices();
+			
+			echo '<div id="affwp-affiliate-dashboard">';
+		
+			affiliate_wp()->templates->get_template_part( 'dashboard-tab', 'creatives' );
+		
+			echo '</div>';
+		}
 }
 
 /**
@@ -301,19 +372,50 @@ function affwp_bp_affiliate_settings() {
 // Get Affiliate Settings Page for BuddyPress Profile Tab
 function affwp_show_bp_affiliate_settings() {
 
-	if ( ! is_user_logged_in() ) {
-		return affiliate_wp()->templates->get_template_part( 'login' );
-	} elseif( ! affwp_is_affiliate() ){
-				return affiliate_wp()->templates->get_template_part( 'register' );
-			}
-
-	echo '<div id="affwp-affiliate-dashboard">';
-
-	affiliate_wp()->templates->get_template_part( 'dashboard-tab', 'settings' );
-
-	echo '</div>';
+	affwp_bp_access_check();
+	
+	if( ! empty( $page ) ) {
+		return $page;
+	} elseif( empty( $page ) ){
+	
+			affwp_bp_affiliate_area_notices();
+			
+			echo '<div id="affwp-affiliate-dashboard">';
+		
+			affiliate_wp()->templates->get_template_part( 'dashboard-tab', 'settings' );
+		
+			echo '</div>';
+		}
 }
 
+/**
+* Create AffiliateWP BP Admin Settings (Integrations Tab)
+*
+* @since  1.0
+*/
+function affiliatewp_bp_admin_settings( $settings = array() ) {
+	$settings[ 'affwp_bp_disable_msgs' ] = array(
+		'name' => __( 'Disable BuddyPress Messages', 'affiliatewp-bp' ),
+		'desc' => __( 'Disable buddypress message notifications?', 'affiliatewp-bp' ),
+		'type' => 'checkbox'
+	);
+	return $settings;
+}
+add_filter( 'affwp_settings_integrations', 'affiliatewp_bp_admin_settings' );
+
+ /**
+ * Redirect affiliate to buddypress affiliate area after registration
+ * 
+ * @since  1.0
+ */
+function affiliatewp_bp_registration_redirect( $affiliate_id, $status, $args ) {
+	// global $bp;
+	// $redirect = trailingslashit( $bp->loggedin_user->domain . 'affiliate-area' );
+	$redirect = trailingslashit( bp_loggedin_user_domain() . 'affiliate-area' );
+
+	wp_redirect( $redirect ); exit;
+}
+add_action( 'affwp_register_user', 'affiliatewp_bp_registration_redirect', 10, 3 );
 
 /**
 * Send AffiliateWP Messages
@@ -329,16 +431,15 @@ function affwp_show_bp_affiliate_settings() {
 function affiliatewp_bp_msg_on_registration( $affiliate_id = 0, $status = '', $args = array() ) {
     if ( ! bp_is_active( 'messages' ) )
         return;
-
-	/* Make sure it's enabled in settings
-	if ( ! affiliate_wp()->settings->get( 'registration_notifications' ) )
+	
+	// Make sure it's enabled in settings - NEW
+	if ( affiliate_wp()->settings->get( 'affwp_bp_disable_msgs' ))
 		return;
-	*/
 
 	affiliatewp_bp_message( 'registration', array( 'affiliate_id' => $affiliate_id ) );
 
 }
-add_action( 'affwp_register_user', 'affiliatewp_bp_msg_on_registration', 10, 3 );
+add_action( 'affwp_register_user', 'affiliatewp_bp_msg_on_registration', 11, 3 );
 
 
 /**
@@ -349,6 +450,10 @@ add_action( 'affwp_register_user', 'affiliatewp_bp_msg_on_registration', 10, 3 )
 function affiliatewp_bp_msg_on_approval( $affiliate_id = 0, $status = '', $old_status = '' ) {
     if ( ! bp_is_active( 'messages' ) )
         return;
+
+	// Make sure it's enabled in settings - NEW
+	if ( affiliate_wp()->settings->get( 'affwp_bp_disable_msgs' ))
+		return;
 
 	// Make sure affiliate has been approved
 	if ( 'active' != $status || 'pending' != $old_status )
@@ -366,6 +471,10 @@ add_action( 'affwp_set_affiliate_status', 'affiliatewp_bp_msg_on_approval', 10, 
 function affiliatewp_bp_msg_on_rejection( $affiliate_id = 0, $status = '', $old_status = '' ) {
     if ( ! bp_is_active( 'messages' ) )
         return;
+
+	// Make sure it's enabled in settings - NEW
+	if ( affiliate_wp()->settings->get( 'affwp_bp_disable_msgs' ))
+		return;
 		
 	// Make sure affiliate has been rejected	
 	if ( 'rejected' != $status || 'pending' != $old_status )
@@ -384,7 +493,13 @@ function affiliatewp_bp_msg_for_new_referral( $affiliate_id = 0, $referral ) {
     if ( ! bp_is_active( 'messages' ) )
         return;
 
-	/* Make sure it's enabled in settings
+	$user_id = affwp_get_affiliate_user_id( $affiliate_id );
+	
+	// Make sure it's enabled in settings - NEW
+	if ( affiliate_wp()->settings->get( 'affwp_bp_disable_msgs' ))
+		return;
+
+	/* Make sure it's enabled in settings - USER EMAILS
 	if ( ! get_user_meta( $user_id, 'affwp_referral_notifications', true ) )
 		return;
 	*/
@@ -405,9 +520,16 @@ function affiliatewp_bp_msg_for_paid_referral( $referral_id, $new_status, $old_s
 	if ( 'paid' != $new_status || 'unpaid' != $old_status )
 		return;	
 
-	// Make sure it's enabled in settings
+	$user_id = affwp_get_affiliate_user_id( $affiliate_id );
+	
+	// Make sure it's enabled in settings - NEW
+	if ( affiliate_wp()->settings->get( 'affwp_bp_disable_msgs' ))
+		return;
+
+	/* Make sure it's enabled in settings - USER EMAILS
 	if ( ! get_user_meta( $user_id, 'affwp_referral_notifications', true ) )
 		return;
+	*/
 
 	$referral = affwp_get_referral( $referral_id );
 	
@@ -589,7 +711,7 @@ function affiliatewp_bp_message( $type = '', $args = array() ) {
 	ob_start();
 	$msg_args = array(
 		'sender_id' => $sender_id,
-		'thread_id' => '',
+		'thread_id' => false,
 		'recipients' => $recipients,
 		'subject' => $subject,
 		'content' => $content,
@@ -605,7 +727,7 @@ function affiliatewp_bp_message( $type = '', $args = array() ) {
 	* if the message was sent successfully, or it’ll be false on failure.
 	*/
 	
-	/* DEBUG
+	/* DEBUG */
 	if( $result == false ){
 		echo '<p>'. $type .' Message Failed</p>';
 		echo '<p>Admin ID: '. $admin_id .'</p>';
@@ -627,7 +749,7 @@ function affiliatewp_bp_message( $type = '', $args = array() ) {
 		echo '<p>Subject: '.$subject .'</p>';
 		echo '<p>Content: '. $content .'</p>';
 		echo '<p>Date: '.$date_sent .'</p>';
-	} */
+	}
 }
 
 // Need to add message deletion functions
