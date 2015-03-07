@@ -136,22 +136,44 @@ function affiliate_area_bp_nav_adder() {
 *
 * @since  1.0
 */
-function affwp_bp_access_check() {
+function affwp_bp_access_check( $page = '' ) {
 
-	$page = '';
+	if ( ! affwp_is_affiliate() && affiliate_wp()->settings->get( 'allow_affiliate_registration' ) ){
+		$page = 'register';
+	} 
+	
+	elseif ( !affiliate_wp()->settings->get( 'allow_affiliate_registration' ) && !affwp_is_affiliate() ) {
+		$page = 'no-access';
+	}
 
-	if ( ! is_user_logged_in() ) {
+	if ( ! is_user_logged_in() ) { 
+		$page = 'login';
+	} 
+	
+	return $page;
+}
+
+/**
+* Display Appropriate Page Template
+*
+* @since  1.0
+*/
+function affwp_bp_page( $page = '' ) {
+
+	if ( $page == 'login' ) {
 		// Show login page for logged out users
-		$page = affiliate_wp()->templates->get_template_part( 'login' );
-	} else{
-			if( ! affwp_is_affiliate() && affiliate_wp()->settings->get( 'allow_affiliate_registration' ) ){
-				// Show affiliate registration page if enabled in settings
-				$page = affiliate_wp()->templates->get_template_part( 'register' );
-			} elseif( ! affiliate_wp()->settings->get( 'allow_affiliate_registration' ) && affwp_is_affiliate() ){
-					// Show no access page if registration page disabled in settings
-					$page = affiliate_wp()->templates->get_template_part( 'no', 'access' );
-					}
-		}
+		return affiliate_wp()->templates->get_template_part( 'login' );
+	}
+
+	if ( $page == 'register' ) {
+		// Show affiliate registration page if enabled in settings
+		return affiliate_wp()->templates->get_template_part( 'register' );
+	}
+	
+	if ( $page == 'no-access' ) {
+		// Show no access page if registration page disabled in settings
+		return affiliate_wp()->templates->get_template_part( 'no', 'access' );
+	}
 }
 
 /**
@@ -198,20 +220,19 @@ function affwp_bp_affiliate_urls() {
 // Get Affiliate URLs Page for BuddyPress Profile Tab
 function affwp_show_bp_affiliate_urls() {
 
-	affwp_bp_access_check();
+	affwp_bp_page( affwp_bp_access_check() );
 	
-	if( ! empty( $page ) ) {
-		return $page;
-	} elseif( empty( $page ) ){
+	if( affwp_bp_access_check() == '' ) {
 	
-			affwp_bp_affiliate_area_notices();
+		affwp_bp_affiliate_area_notices();
+		
+		echo '<div id="affwp-affiliate-dashboard">';
+	
+		affiliate_wp()->templates->get_template_part( 'dashboard-tab', 'urls' );
+	
+		echo '</div>';
 			
-			echo '<div id="affwp-affiliate-dashboard">';
-		
-			affiliate_wp()->templates->get_template_part( 'dashboard-tab', 'urls' );
-		
-			echo '</div>';
-		}
+	}
 }
 
 /**
@@ -227,20 +248,18 @@ function affwp_bp_affiliate_stats() {
 // Get Affiliate Stats Page for BuddyPress Profile Tab
 function affwp_show_bp_affiliate_stats() {
 
-	affwp_bp_access_check();
+	affwp_bp_page( affwp_bp_access_check() );
 	
-	if( ! empty( $page ) ) {
-		return $page;
-	} elseif( empty( $page ) ){
+	if( affwp_bp_access_check() == '' ) {
 	
-			affwp_bp_affiliate_area_notices();
-			
-			echo '<div id="affwp-affiliate-dashboard">';
+		affwp_bp_affiliate_area_notices();
 		
-			affiliate_wp()->templates->get_template_part( 'dashboard-tab', 'stats' );
-		
-			echo '</div>';
-		}
+		echo '<div id="affwp-affiliate-dashboard">';
+	
+		affiliate_wp()->templates->get_template_part( 'dashboard-tab', 'stats' );
+	
+		echo '</div>';
+	}
 }
 
 /**
@@ -256,20 +275,18 @@ function affwp_bp_affiliate_graphs() {
 // Get Affiliate Graphs Page for BuddyPress Profile Tab
 function affwp_show_bp_affiliate_graphs() {
 
-	affwp_bp_access_check();
+	affwp_bp_page( affwp_bp_access_check() );
 	
-	if( ! empty( $page ) ) {
-		return $page;
-	} elseif( empty( $page ) ){
+	if( affwp_bp_access_check() == '' ) {
 	
-			affwp_bp_affiliate_area_notices();
-			
-			echo '<div id="affwp-affiliate-dashboard">';
+		affwp_bp_affiliate_area_notices();
 		
-			affiliate_wp()->templates->get_template_part( 'dashboard-tab', 'graphs' );
-		
-			echo '</div>';
-		}
+		echo '<div id="affwp-affiliate-dashboard">';
+	
+		affiliate_wp()->templates->get_template_part( 'dashboard-tab', 'graphs' );
+	
+		echo '</div>';
+	}
 }
 
 /**
@@ -285,20 +302,18 @@ function affwp_bp_affiliate_referrals() {
 // Get Affiliate Referrals Page for BuddyPress Profile Tab
 function affwp_show_bp_affiliate_referrals() {
 
-	affwp_bp_access_check();
+	affwp_bp_page( affwp_bp_access_check() );
 	
-	if( ! empty( $page ) ) {
-		return $page;
-	} elseif( empty( $page ) ){
+	if( affwp_bp_access_check() == '' ) {
 	
-			affwp_bp_affiliate_area_notices();
-			
-			echo '<div id="affwp-affiliate-dashboard">';
+		affwp_bp_affiliate_area_notices();
 		
-			affiliate_wp()->templates->get_template_part( 'dashboard-tab', 'referrals' );
-		
-			echo '</div>';
-		}
+		echo '<div id="affwp-affiliate-dashboard">';
+	
+		affiliate_wp()->templates->get_template_part( 'dashboard-tab', 'referrals' );
+	
+		echo '</div>';
+	}
 }
 
 /**
@@ -314,20 +329,18 @@ function affwp_bp_affiliate_visits() {
 // Get Affiliate Visits Page for BuddyPress Profile Tab
 function affwp_show_bp_affiliate_visits() {
 
-	affwp_bp_access_check();
+	affwp_bp_page( affwp_bp_access_check() );
 	
-	if( ! empty( $page ) ) {
-		return $page;
-	} elseif( empty( $page ) ){
+	if( affwp_bp_access_check() == '' ) {
 	
-			affwp_bp_affiliate_area_notices();
-			
-			echo '<div id="affwp-affiliate-dashboard">';
+		affwp_bp_affiliate_area_notices();
 		
-			affiliate_wp()->templates->get_template_part( 'dashboard-tab', 'visits' );
-		
-			echo '</div>';
-		}
+		echo '<div id="affwp-affiliate-dashboard">';
+	
+		affiliate_wp()->templates->get_template_part( 'dashboard-tab', 'visits' );
+	
+		echo '</div>';
+	}
 }
 
 /**
@@ -343,20 +356,18 @@ function affwp_bp_affiliate_creatives() {
 // Get Affiliate Creatives Page for BuddyPress Profile Tab
 function affwp_show_bp_affiliate_creatives() {
 
-	affwp_bp_access_check();
+	affwp_bp_page( affwp_bp_access_check() );
 	
-	if( ! empty( $page ) ) {
-		return $page;
-	} elseif( empty( $page ) ){	
+	if( affwp_bp_access_check() == '' ) {
 	
-			affwp_bp_affiliate_area_notices();
-			
-			echo '<div id="affwp-affiliate-dashboard">';
+		affwp_bp_affiliate_area_notices();
 		
-			affiliate_wp()->templates->get_template_part( 'dashboard-tab', 'creatives' );
-		
-			echo '</div>';
-		}
+		echo '<div id="affwp-affiliate-dashboard">';
+	
+		affiliate_wp()->templates->get_template_part( 'dashboard-tab', 'creatives' );
+	
+		echo '</div>';
+	}
 }
 
 /**
@@ -372,20 +383,18 @@ function affwp_bp_affiliate_settings() {
 // Get Affiliate Settings Page for BuddyPress Profile Tab
 function affwp_show_bp_affiliate_settings() {
 
-	affwp_bp_access_check();
+	affwp_bp_page( affwp_bp_access_check() );
 	
-	if( ! empty( $page ) ) {
-		return $page;
-	} elseif( empty( $page ) ){
+	if( affwp_bp_access_check() == '' ) {
 	
-			affwp_bp_affiliate_area_notices();
-			
-			echo '<div id="affwp-affiliate-dashboard">';
+		affwp_bp_affiliate_area_notices();
 		
-			affiliate_wp()->templates->get_template_part( 'dashboard-tab', 'settings' );
-		
-			echo '</div>';
-		}
+		echo '<div id="affwp-affiliate-dashboard">';
+	
+		affiliate_wp()->templates->get_template_part( 'dashboard-tab', 'settings' );
+	
+		echo '</div>';
+	}
 }
 
 /**
