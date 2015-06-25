@@ -1,13 +1,13 @@
-=== AffiliateWP - BuddyPress Integration ===
+=== AffiliateWP BuddyPress ===
 Contributors: codelion7
 Tags: AffiliateWP, affiliate, Pippin Williamson, Andrew Munro, mordauk, Christian Freeman, pippinsplugins, sumobi, codelion7, ecommerce, e-commerce, e commerce, selling, referrals, 
 Requires at least: 3.9
-Tested up to: 4.0.1
+Tested up to: 4.2.2
 Stable tag: 1.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Integrate each user's Affiliate Account with their BuddyPress Profile.
+Integrate AffiliateWP with BuddyPress.
 
 == Description ==
 
@@ -20,21 +20,17 @@ Once activated, this plugin creates a BuddyPress Profile Tab for each tab of the
 * Visits
 * Creatives
 * Settings
+* Sub Affiliates
+* Coupons (Coming Soon)
+* Order Details (Coming Soon)
 
 If a user is not an affiliate, it will display the Affiliate Registration page on their profile instead.
+
+
 This plugin requires [AffiliateWP](http://affiliatewp.com/ "AffiliateWP") and [BuddyPress](http://buddypress.org/ "BuddyPress") in order to function.
 
 
-**Send BuddyPress Messages for:**
-
-* Affiliate Approval
-* Affiliate Denial
-* Affiliate Registration (Coming Soon)
-* New Referrals (Coming Soon)
-* New Payouts (Coming Soon)
-
-
-Just remember to set your Affiliate Area page in Affiliates &rarr; Settings to be your [login page](http://docs.affiliatewp.com/article/98-affiliatelogin "Affiliate Login Shortcode") or your affiliates will have no where to login from via emails etc.
+Remember to set your Affiliate Area page in Affiliates &rarr; Settings to be your [login page](http://docs.affiliatewp.com/article/98-affiliatelogin "Affiliate Login Shortcode") or your affiliates will have no where to login from via emails etc.
 
 **What is AffiliateWP?**
 
