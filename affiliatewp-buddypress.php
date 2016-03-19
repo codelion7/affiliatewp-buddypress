@@ -5,7 +5,7 @@
  * Description: Integrates AffiliateWP with BuddyPress
  * Author: Christian Freeman and The Perfect Plugin Team
  * Author URI: http://theperfectplugin.com
- * Version: 1.0
+ * Version: 1.2
  */
 
 // Exit if accessed directly
@@ -33,6 +33,14 @@ if ( ! class_exists( 'AffiliateWP_BuddyPress' ) ) {
 		private static $version;
 
 		/**
+		 * The settings instance variable
+		 *
+		 * @var AffiliateWP_BuddyPress_Settings
+		 * @since 1.2
+		 */
+		public $settings;
+
+		/**
 		 * Main AffiliateWP_BuddyPress Instance
 		 *
 		 * Insures that only one instance of AffiliateWP_BuddyPress exists in memory at any one
@@ -48,10 +56,11 @@ if ( ! class_exists( 'AffiliateWP_BuddyPress' ) ) {
 			if ( ! isset( self::$instance ) && ! ( self::$instance instanceof AffiliateWP_BuddyPress ) ) {
 				
 				self::$instance = new AffiliateWP_BuddyPress;
-				self::$version  = '1.0';
+				self::$version  = '1.2';
 
 				self::$instance->setup_constants();
 				self::$instance->includes();
+				self::$instance->setup_objects();
 				self::$instance->hooks();
 
 			}
@@ -146,9 +155,23 @@ if ( ! class_exists( 'AffiliateWP_BuddyPress' ) ) {
 		 */
 		private function includes() {
 
+			require_once AFFWP_BP_PLUGIN_DIR . 'includes/admin/class-settings.php';
+
+			require_once AFFWP_BP_PLUGIN_DIR . 'includes/scripts.php';
 			require_once AFFWP_BP_PLUGIN_DIR . 'includes/affiliate-area.php';
-			// require_once AFFWP_BP_PLUGIN_DIR . 'includes/compatibility.php';
+			require_once AFFWP_BP_PLUGIN_DIR . 'includes/compatibility.php';
 			
+		}
+
+		/**
+		 * Setup all objects
+		 *
+		 * @access public
+		 * @since 1.2
+		 * @return void
+		 */
+		public function setup_objects() {
+			self::$instance->settings = new AffiliateWP_BP_Settings;
 		}
 
 		/**
@@ -185,6 +208,22 @@ if ( ! class_exists( 'AffiliateWP_BuddyPress' ) ) {
 
 		    return $links;
 		}
+
+		/**
+		 * Whether or not we're on the affiliate dashboard tab of the affiliate area
+		 *
+		 * @since 1.2
+		 *
+		 * @return boolean
+		 */
+		public function is_dashboard_tab() {
+			if ( isset( $_GET['tab']) && 'urls' == $_GET['tab'] ) {
+				return (bool) true;
+			}
+	
+			return (bool) false;
+		}
+		
 	}
 	
 	/**
@@ -205,6 +244,10 @@ if ( ! class_exists( 'AffiliateWP_BuddyPress' ) ) {
 	    	
 	        if ( ! class_exists( 'AffiliateWP_Activation' ) || ! class_exists( 'AffiliateWP_BuddyPress_Activation' ) ) {
 	            require_once 'includes/class-activation.php';
+	        }
+
+	        if ( ! class_exists( 'AffiliateWP_BuddyPress_Activation' ) ) {
+	            require_once 'includes/class-activation-buddypress.php';
 	        }
 
 	        // AffiliateWP activation

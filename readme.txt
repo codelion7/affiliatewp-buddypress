@@ -3,7 +3,7 @@ Contributors: codelion7
 Tags: AffiliateWP, affiliate, Pippin Williamson, Andrew Munro, mordauk, Christian Freeman, pippinsplugins, sumobi, codelion7, ecommerce, e-commerce, e commerce, selling, referrals, 
 Requires at least: 3.9
 Tested up to: 4.2.2
-Stable tag: 1.0
+Stable tag: 1.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -21,8 +21,9 @@ Once activated, this plugin creates a BuddyPress Profile Tab for each tab of the
 * Creatives
 * Settings
 * Sub Affiliates
-* Coupons (Coming Soon)
-* Order Details (Coming Soon)
+* Bonuses
+* Coupons
+* Order Details
 
 If a user is not an affiliate, it will display the Affiliate Registration page on their profile instead.
 
@@ -50,6 +51,18 @@ Remember to set your Affiliate Area page in Affiliates &rarr; Settings to be you
 Absolutely. This plugin is designed to work for BuddyPress & AffiliateWP, even when network activated.
 
 == Changelog ==
+
+= 1.2 =
+* NEW - Option to choose where to display the Affiliate Area tab in BP profile.
+* UPDATE - Display current menu positions for each tab.
+* UPDATE - Display Affiliate Dashboard in URLs tab.
+* FIX - Fatal error when deactivating AffiliateWP.
+
+= 1.1 =
+* NEW - Order Details Profile Tab.
+* NEW - Coupons Profile Tab.
+* UPDATE - Transferred Sub Affiliates BP profile tab code to BuddyPress add-on.
+* UPDATE - Transferred Performances Bonuses BP profile tab code to BuddyPress add-on.
 
 = 1.0 =
 * Initial release
