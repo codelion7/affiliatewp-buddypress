@@ -28,6 +28,10 @@ function affwp_bp_add_affiliate_area_bp_nav() {
 	
 	$main_tab_location = affiliate_wp()->settings->get( 'affwp_bp_aff_area_tab_location' );
 	
+	if( empty( $main_tab_location ) ) {
+		$main_tab_location = 'beginning';
+	} 	
+	
 	if( $main_tab_location == 'beginning' ) {
 		$main_tab_order = 3;
 	} 
@@ -42,9 +46,17 @@ function affwp_bp_add_affiliate_area_bp_nav() {
 		$main_tab_order = $custom_order ? $custom_order : 3;
 	}
 	
+	$main_tab_label = affiliate_wp()->settings->get( 'affwp_bp_aff_area_tab_label' );
+	
+	if( empty( $main_tab_label ) ) {
+		$main_tab_label = __('Affiliate Area', 'affiliatewp-buddypress');
+	} 	
+
+	$hidden_tabs = affiliate_wp()->settings->get( 'affwp_bp_aff_area_hide_tabs' );
+	
 	// Add the Affiliate Area (Dashboard) Tab
 	bp_core_new_nav_item( array(
-		'name' => __('Affiliate Area', 'affiliatewp-buddypress'),
+		'name' => $main_tab_label,
 		'slug' => 'affiliate-area',
 		'position' => $main_tab_order,
 		'show_for_displayed_user' => false,
@@ -53,91 +65,126 @@ function affwp_bp_add_affiliate_area_bp_nav() {
 		'default_subnav_slug' => 'affiliate-area'
 	) );
 	
-	// Add the Affiliate Area (URLs) Sub Tab
-	bp_core_new_subnav_item( array( 
-		'name' => __('Affiliate URLs', 'affiliatewp-buddypress'),
-		'slug' => 'affiliate-area',
-		'show_for_displayed_user' => false, 
-		'parent_url' => trailingslashit( bp_displayed_user_domain() . 'affiliate-area'),
-		'parent_slug' => 'affiliate-area',
-		'position' => 10,
-		'screen_function' => 'affwp_bp_affiliate_dashboard',
-		'item_css_id' => 'affiliate-area',
-		'user_has_access' => bp_is_my_profile()
-	) ); 
+	if( ! $hidden_tabs['urls'] ) {
+		
+		// Add the Affiliate Area (URLs) Sub Tab
+		bp_core_new_subnav_item( array( 
+			'name' => __('Affiliate URLs', 'affiliatewp-buddypress'),
+			'slug' => 'affiliate-area',
+			'show_for_displayed_user' => false, 
+			'parent_url' => trailingslashit( bp_displayed_user_domain() . 'affiliate-area'),
+			'parent_slug' => 'affiliate-area',
+			'position' => 10,
+			'screen_function' => 'affwp_bp_affiliate_dashboard',
+			'item_css_id' => 'affiliate-area',
+			'user_has_access' => bp_is_my_profile()
+		) ); 
+	}
 	
-	// Add the Stats Sub Tab
-	bp_core_new_subnav_item( array( 
-		'name' => __('Stats', 'affiliatewp-buddypress'),
-		'slug' => 'affiliate-stats', 
-		'parent_url' => trailingslashit( bp_displayed_user_domain() . 'affiliate-area'),
-		'parent_slug' => 'affiliate-area',
-		'position' => 20,
-		'screen_function' => 'affwp_bp_affiliate_stats',
-		'item_css_id' => 'affiliate-stats',
-		'user_has_access' => bp_is_my_profile()
-	) ); 	
+	if( ! $hidden_tabs['stats'] ) {
+		
+		// Add the Stats Sub Tab
+		bp_core_new_subnav_item( array( 
+			'name' => __('Stats', 'affiliatewp-buddypress'),
+			'slug' => 'affiliate-stats', 
+			'parent_url' => trailingslashit( bp_displayed_user_domain() . 'affiliate-area'),
+			'parent_slug' => 'affiliate-area',
+			'position' => 20,
+			'screen_function' => 'affwp_bp_affiliate_stats',
+			'item_css_id' => 'affiliate-stats',
+			'user_has_access' => bp_is_my_profile()
+		) ); 	
+	}
 	
-	// Add the Graphs Sub Tab
-	bp_core_new_subnav_item( array( 
-		'name' => __('Graphs', 'affiliatewp-buddypress'),
-		'slug' => 'affiliate-graphs', 
-		'parent_url' => trailingslashit( bp_displayed_user_domain() . 'affiliate-area'),
-		'parent_slug' => 'affiliate-area',
-		'position' => 30,
-		'screen_function' => 'affwp_bp_affiliate_graphs',
-		'item_css_id' => 'affiliate-graphs',
-		'user_has_access' => bp_is_my_profile()
-	) );
+	if( ! $hidden_tabs['graphs'] ) {
 	
-	// Add the Referrals Sub Tab
-	bp_core_new_subnav_item( array( 
-		'name' => __('Referrals', 'affiliatewp-buddypress'),
-		'slug' => 'affiliate-referrals', 
-		'parent_url' => trailingslashit( bp_displayed_user_domain() . 'affiliate-area'),
-		'parent_slug' => 'affiliate-area',
-		'position' => 40,
-		'screen_function' => 'affwp_bp_affiliate_referrals',
-		'item_css_id' => 'affiliate-referrals',
-		'user_has_access' => bp_is_my_profile()
-	) );
+		// Add the Graphs Sub Tab
+		bp_core_new_subnav_item( array( 
+			'name' => __('Graphs', 'affiliatewp-buddypress'),
+			'slug' => 'affiliate-graphs', 
+			'parent_url' => trailingslashit( bp_displayed_user_domain() . 'affiliate-area'),
+			'parent_slug' => 'affiliate-area',
+			'position' => 30,
+			'screen_function' => 'affwp_bp_affiliate_graphs',
+			'item_css_id' => 'affiliate-graphs',
+			'user_has_access' => bp_is_my_profile()
+		) );
+	}
 	
-	// Add the Visits Sub Tab
-	bp_core_new_subnav_item( array( 
-		'name' => __('Visits', 'affiliatewp-buddypress'),
-		'slug' => 'affiliate-visits', 
-		'parent_url' => trailingslashit( bp_displayed_user_domain() . 'affiliate-area'),
-		'parent_slug' => 'affiliate-area',
-		'position' => 50,
-		'screen_function' => 'affwp_bp_affiliate_visits',
-		'item_css_id' => 'affiliate-visits',
-		'user_has_access' => bp_is_my_profile()
-	) );
+	if( ! $hidden_tabs['referrals'] ) {
+			
+		// Add the Referrals Sub Tab
+		bp_core_new_subnav_item( array( 
+			'name' => __('Referrals', 'affiliatewp-buddypress'),
+			'slug' => 'affiliate-referrals', 
+			'parent_url' => trailingslashit( bp_displayed_user_domain() . 'affiliate-area'),
+			'parent_slug' => 'affiliate-area',
+			'position' => 40,
+			'screen_function' => 'affwp_bp_affiliate_referrals',
+			'item_css_id' => 'affiliate-referrals',
+			'user_has_access' => bp_is_my_profile()
+		) );
+	}
 
-	// Add the Creatives Sub Tab
-	bp_core_new_subnav_item( array( 
-		'name' => __('Creatives', 'affiliatewp-buddypress'),
-		'slug' => 'affiliate-creatives', 
-		'parent_url' => trailingslashit( bp_displayed_user_domain() . 'affiliate-area'),
-		'parent_slug' => 'affiliate-area',
-		'position' => 60,
-		'screen_function' => 'affwp_bp_affiliate_creatives',
-		'item_css_id' => 'affiliate-creatives',
-		'user_has_access' => bp_is_my_profile()
-	) );
+	if( ! $hidden_tabs['payouts'] ) {
+			
+		// Add the Payouts Sub Tab
+		bp_core_new_subnav_item( array( 
+			'name' => __('Payouts', 'affiliatewp-buddypress'),
+			'slug' => 'affiliate-payouts', 
+			'parent_url' => trailingslashit( bp_displayed_user_domain() . 'affiliate-area'),
+			'parent_slug' => 'affiliate-area',
+			'position' => 50,
+			'screen_function' => 'affwp_bp_affiliate_payouts',
+			'item_css_id' => 'affiliate-payouts',
+			'user_has_access' => bp_is_my_profile()
+		) );
+	}
+		
+	if( ! $hidden_tabs['visits'] ) {
+			
+		// Add the Visits Sub Tab
+		bp_core_new_subnav_item( array( 
+			'name' => __('Visits', 'affiliatewp-buddypress'),
+			'slug' => 'affiliate-visits', 
+			'parent_url' => trailingslashit( bp_displayed_user_domain() . 'affiliate-area'),
+			'parent_slug' => 'affiliate-area',
+			'position' => 60,
+			'screen_function' => 'affwp_bp_affiliate_visits',
+			'item_css_id' => 'affiliate-visits',
+			'user_has_access' => bp_is_my_profile()
+		) );
+	}
+	if( ! $hidden_tabs['creatives'] ) {
+		
+		// Add the Creatives Sub Tab
+		bp_core_new_subnav_item( array( 
+			'name' => __('Creatives', 'affiliatewp-buddypress'),
+			'slug' => 'affiliate-creatives', 
+			'parent_url' => trailingslashit( bp_displayed_user_domain() . 'affiliate-area'),
+			'parent_slug' => 'affiliate-area',
+			'position' => 70,
+			'screen_function' => 'affwp_bp_affiliate_creatives',
+			'item_css_id' => 'affiliate-creatives',
+			'user_has_access' => bp_is_my_profile()
+		) );
+	}
 	
-	// Add the Settings Sub Tab
-	bp_core_new_subnav_item( array( 
-		'name' => __('Settings', 'affiliatewp-buddypress'),
-		'slug' => 'affiliate-settings',
-		'show_for_displayed_user' => false, 
-		'parent_url' => trailingslashit( bp_displayed_user_domain() . 'affiliate-area'),
-		'parent_slug' => 'affiliate-area',
-		'position' => 100,
-		'screen_function' => 'affwp_bp_affiliate_settings',
-		'item_css_id' => 'affiliate-settings',
-		'user_has_access' => bp_is_my_profile()
-	) );
+	if( ! $hidden_tabs['settings'] ) {
+		
+		// Add the Settings Sub Tab
+		bp_core_new_subnav_item( array( 
+			'name' => __('Settings', 'affiliatewp-buddypress'),
+			'slug' => 'affiliate-settings',
+			'show_for_displayed_user' => false, 
+			'parent_url' => trailingslashit( bp_displayed_user_domain() . 'affiliate-area'),
+			'parent_slug' => 'affiliate-area',
+			'position' => 100,
+			'screen_function' => 'affwp_bp_affiliate_settings',
+			'item_css_id' => 'affiliate-settings',
+			'user_has_access' => bp_is_my_profile()
+		) );
+	}
 	
 	do_action( 'affwp_bp_after_add_nav_items' );
 }
@@ -189,37 +236,6 @@ function affwp_bp_page( $page = '' ) {
 }
 
 /**
-* Add Affiliate Dashboard Notices
-*
-* @since  1.0
-*/
-function affwp_bp_affiliate_area_notices() {
-
-	if ( 'pending' == affwp_get_affiliate_status( affwp_get_affiliate_id() ) ) :
-
-		echo '<p class="affwp-notice">' . __( "Your affiliate account is pending approval", "affiliate-wp" ) . '</p>';
-
-	elseif ( 'inactive' == affwp_get_affiliate_status( affwp_get_affiliate_id() ) ) :
-
-		echo '<p class="affwp-notice">' . __( "Your affiliate account is not active", "affiliate-wp" ) . '</p>';
-
-	elseif ( 'rejected' == affwp_get_affiliate_status( affwp_get_affiliate_id() ) ) :
-
-		echo '<p class="affwp-notice">' . __( "Your affiliate account request has been rejected", "affiliate-wp" ) . '</p>';
-
-	endif;
-
-	if ( ! empty( $_GET['affwp_notice'] ) && 'profile-updated' == $_GET['affwp_notice'] ) :
-
-		echo '<p class="affwp-notice">' . __( "Your affiliate profile has been updated", "affiliate-wp" ) . '</p>';
-
-	endif;
-
-	do_action( 'affwp_affiliate_dashboard_notices', affwp_get_affiliate_id() ); 
-
-}
-
-/**
 * Load Affiliate Dashboard
 *
 * @since  1.2
@@ -235,8 +251,8 @@ function affwp_bp_show_affiliate_dashboard() {
 	affwp_bp_page( affwp_bp_access_check() );
 	
 	if( affwp_bp_access_check() == '' ) {
-	
-		affwp_bp_affiliate_area_notices();
+		
+		echo '<style>#buddypress #affwp-affiliate-dashboard-tabs { display: none!important; /* Hide Duplicate Tabs */ }</style>';
 		
 		echo '<div id="affwp-affiliate-dashboard">';
 
@@ -263,8 +279,6 @@ function affwp_bp_show_affiliate_urls() {
 	affwp_bp_page( affwp_bp_access_check() );
 	
 	if( affwp_bp_access_check() == '' ) {
-	
-		affwp_bp_affiliate_area_notices();
 		
 		echo '<div id="affwp-affiliate-dashboard">';
 	
@@ -291,8 +305,6 @@ function affwp_bp_show_affiliate_stats() {
 	affwp_bp_page( affwp_bp_access_check() );
 	
 	if( affwp_bp_access_check() == '' ) {
-	
-		affwp_bp_affiliate_area_notices();
 		
 		echo '<div id="affwp-affiliate-dashboard">';
 	
@@ -318,8 +330,6 @@ function affwp_bp_show_affiliate_graphs() {
 	affwp_bp_page( affwp_bp_access_check() );
 	
 	if( affwp_bp_access_check() == '' ) {
-	
-		affwp_bp_affiliate_area_notices();
 		
 		echo '<div id="affwp-affiliate-dashboard">';
 	
@@ -345,12 +355,35 @@ function affwp_bp_show_affiliate_referrals() {
 	affwp_bp_page( affwp_bp_access_check() );
 	
 	if( affwp_bp_access_check() == '' ) {
-	
-		affwp_bp_affiliate_area_notices();
 		
 		echo '<div id="affwp-affiliate-dashboard">';
 	
 		affiliate_wp()->templates->get_template_part( 'dashboard-tab', 'referrals' );
+	
+		echo '</div>';
+	}
+}
+
+/**
+* Load Affiliate Payouts
+*
+* @since  1.0.4
+*/
+function affwp_bp_affiliate_payouts() {
+    add_action( 'bp_template_content', 'affwp_bp_show_affiliate_payouts' );
+	bp_core_load_template( apply_filters( 'bp_core_template_plugin', 'members/single/plugins' ) );
+}
+
+// Get Affiliate Payouts Template for BuddyPress Profile Tab
+function affwp_bp_show_affiliate_payouts() {
+
+	affwp_bp_page( affwp_bp_access_check() );
+	
+	if( affwp_bp_access_check() == '' ) {
+		
+		echo '<div id="affwp-affiliate-dashboard">';
+	
+		affiliate_wp()->templates->get_template_part( 'dashboard-tab', 'payouts' );
 	
 		echo '</div>';
 	}
@@ -372,8 +405,6 @@ function affwp_bp_show_affiliate_visits() {
 	affwp_bp_page( affwp_bp_access_check() );
 	
 	if( affwp_bp_access_check() == '' ) {
-	
-		affwp_bp_affiliate_area_notices();
 		
 		echo '<div id="affwp-affiliate-dashboard">';
 	
@@ -399,8 +430,6 @@ function affwp_bp_show_affiliate_creatives() {
 	affwp_bp_page( affwp_bp_access_check() );
 	
 	if( affwp_bp_access_check() == '' ) {
-	
-		affwp_bp_affiliate_area_notices();
 		
 		echo '<div id="affwp-affiliate-dashboard">';
 	
@@ -426,8 +455,6 @@ function affwp_bp_show_affiliate_settings() {
 	affwp_bp_page( affwp_bp_access_check() );
 	
 	if( affwp_bp_access_check() == '' ) {
-	
-		affwp_bp_affiliate_area_notices();
 		
 		echo '<div id="affwp-affiliate-dashboard">';
 	
@@ -453,7 +480,21 @@ add_action( 'affwp_register_user', 'affiliatewp_bp_registration_redirect', 10, 3
 
 // Run if AffiliateWP MLM is Active
 if ( class_exists( 'AffiliateWP_Multi_Level_Marketing' ) ) {
-	
+
+	/**
+	* Add Sub Affiliates Tab to the Hidden Tabs List
+	*
+	* @since  1.0.3
+	*/
+	function affwp_bp_add_sub_affiliates_hidden_tab( $hidden_tabs ) {
+		
+		$tab = array( 'sub_affiliates' => __( 'Sub Affiliates', 'affiliatewp-buddypress' ) );
+		$hidden_tabs = array_merge( $hidden_tabs, $tab );
+		
+		return $hidden_tabs;
+	}
+	add_filter( 'affwp_bp_aff_area_hide_tabs', 'affwp_bp_add_sub_affiliates_hidden_tab', 10, 1 );
+
 	if ( ! function_exists( 'affwp_bp_add_sub_affiliates_nav_item' ) ) {
 		/**
 		* Create Affiliate Area Tab for Sub Affiliates in BuddyPress Profile
@@ -461,19 +502,24 @@ if ( class_exists( 'AffiliateWP_Multi_Level_Marketing' ) ) {
 		* @since  1.1
 		*/
 		function affwp_bp_add_sub_affiliates_nav_item() {
-		
-			// Add the Sub Affiliates Tab
-			bp_core_new_subnav_item( array(
-				'name' => __('Sub Affiliates', 'affiliatewp-bp'),
-				'slug' => 'affiliate-sub-affiliates',
-				'show_for_displayed_user' => false, 
-				'parent_url' => trailingslashit( bp_displayed_user_domain() . 'affiliate-area'),
-				'parent_slug' => 'affiliate-area',
-				'position' => 70,
-				'screen_function' => 'affwp_bp_affiliate_sub_affiliates',
-				'item_css_id' => 'affiliate-sub-affiliates',
-				'user_has_access' => bp_is_my_profile()
-			) );
+			
+			$hidden_tabs = affiliate_wp()->settings->get( 'affwp_bp_aff_area_hide_tabs' );
+			
+			if( ! $hidden_tabs['sub_affiliates'] ) {
+				
+				// Add the Sub Affiliates Tab
+				bp_core_new_subnav_item( array(
+					'name' => __('Sub Affiliates', 'affiliatewp-bp'),
+					'slug' => 'affiliate-sub-affiliates',
+					'show_for_displayed_user' => false, 
+					'parent_url' => trailingslashit( bp_displayed_user_domain() . 'affiliate-area'),
+					'parent_slug' => 'affiliate-area',
+					'position' => 70,
+					'screen_function' => 'affwp_bp_affiliate_sub_affiliates',
+					'item_css_id' => 'affiliate-sub-affiliates',
+					'user_has_access' => bp_is_my_profile()
+				) );
+			}
 		}
 		add_action( 'affwp_bp_after_add_nav_items', 'affwp_bp_add_sub_affiliates_nav_item' );
 	}
@@ -497,8 +543,6 @@ if ( class_exists( 'AffiliateWP_Multi_Level_Marketing' ) ) {
 			affwp_bp_page( affwp_bp_access_check() );
 			
 			if( affwp_bp_access_check() == '' ) {
-			
-			affwp_bp_affiliate_area_notices();
 				
 			echo '<div id="affwp-affiliate-dashboard">';
 		
@@ -514,6 +558,20 @@ if ( class_exists( 'AffiliateWP_Multi_Level_Marketing' ) ) {
 // Run if AffiliateWP Performance Bonuses is Active
 if ( class_exists( 'AffiliateWP_Performance_Bonuses' ) ) {
 
+	/**
+	* Add Bonuses Tab to the Hidden Tabs List
+	*
+	* @since  1.0.3
+	*/
+	function affwp_bp_add_bonuses_hidden_tab( $hidden_tabs ) {
+		
+		$tab = array( 'bonuses' => __( 'Bonuses', 'affiliatewp-buddypress' ) );
+		$hidden_tabs = array_merge( $hidden_tabs, $tab );
+		
+		return $hidden_tabs;
+	}
+	add_filter( 'affwp_bp_aff_area_hide_tabs', 'affwp_bp_add_bonuses_hidden_tab', 10, 1 );
+	
 	if ( ! function_exists( 'affwp_bp_add_bonuses_nav_item' ) ) {
 		/**
 		* Create Affiliate Area Tab for Bonuses in BuddyPress Profile
@@ -521,19 +579,24 @@ if ( class_exists( 'AffiliateWP_Performance_Bonuses' ) ) {
 		* @since  1.1
 		*/
 		function affwp_bp_add_bonuses_nav_item() {
-		
-			// Add the Bonuses Tab
-			bp_core_new_subnav_item( array(
-				'name' => __('Bonuses', 'affiliatewp-bp'),
-				'slug' => 'affiliate-bonuses',
-				'show_for_displayed_user' => false, 
-				'parent_url' => trailingslashit( bp_displayed_user_domain() . 'affiliate-area'),
-				'parent_slug' => 'affiliate-area',
-				'position' => 80,
-				'screen_function' => 'affwp_bp_affiliate_bonuses',
-				'item_css_id' => 'affiliate-bonuses',
-				'user_has_access' => bp_is_my_profile()
-			) );
+			
+			$hidden_tabs = affiliate_wp()->settings->get( 'affwp_bp_aff_area_hide_tabs' );
+			
+			if( ! $hidden_tabs['bonuses'] ) {
+				
+				// Add the Bonuses Tab
+				bp_core_new_subnav_item( array(
+					'name' => __('Bonuses', 'affiliatewp-bp'),
+					'slug' => 'affiliate-bonuses',
+					'show_for_displayed_user' => false, 
+					'parent_url' => trailingslashit( bp_displayed_user_domain() . 'affiliate-area'),
+					'parent_slug' => 'affiliate-area',
+					'position' => 80,
+					'screen_function' => 'affwp_bp_affiliate_bonuses',
+					'item_css_id' => 'affiliate-bonuses',
+					'user_has_access' => bp_is_my_profile()
+				) );
+			}
 		}
 		add_action( 'affwp_bp_after_add_nav_items', 'affwp_bp_add_bonuses_nav_item' );
 	}
@@ -557,8 +620,6 @@ if ( class_exists( 'AffiliateWP_Performance_Bonuses' ) ) {
 			affwp_bp_page( affwp_bp_access_check() );
 			
 			if( affwp_bp_access_check() == '' ) {
-			
-			affwp_bp_affiliate_area_notices();
 				
 			echo '<div id="affwp-affiliate-dashboard">';
 		
@@ -575,24 +636,43 @@ if ( class_exists( 'AffiliateWP_Performance_Bonuses' ) ) {
 if ( class_exists( 'AffiliateWP_Order_Details_For_Affiliates' ) ) {
 
 	/**
+	* Add Order Details Tab to the Hidden Tabs List
+	*
+	* @since  1.0.3
+	*/
+	function affwp_bp_add_order_details_hidden_tab( $hidden_tabs ) {
+		
+		$tab = array( 'order_details' => __( 'Order Details', 'affiliatewp-buddypress' ) );
+		$hidden_tabs = array_merge( $hidden_tabs, $tab );
+		
+		return $hidden_tabs;
+	}
+	add_filter( 'affwp_bp_aff_area_hide_tabs', 'affwp_bp_add_order_details_hidden_tab', 10, 1 );
+	
+	/**
 	* Create Affiliate Area Tab for Order Details in BuddyPress Profile
 	*
 	* @since  1.0
 	*/
 	function affwp_bp_add_order_details_nav_item() {
-	
-		// Add the Order Details Tab
-		bp_core_new_subnav_item( array(
-			'name' => __('Order Details', 'affiliatewp-bp'),
-			'slug' => 'affiliate-order-details',
-			'show_for_displayed_user' => false, 
-			'parent_url' => trailingslashit( bp_displayed_user_domain() . 'affiliate-area'),
-			'parent_slug' => 'affiliate-area',
-			'position' => 90,
-			'screen_function' => 'affwp_bp_affiliate_order_details',
-			'item_css_id' => 'affiliate-order-details',
-			'user_has_access' => bp_is_my_profile()
-		) );
+		
+		$hidden_tabs = affiliate_wp()->settings->get( 'affwp_bp_aff_area_hide_tabs' );
+		
+		if( ! $hidden_tabs['order_details'] ) {
+				
+			// Add the Order Details Tab
+			bp_core_new_subnav_item( array(
+				'name' => __('Order Details', 'affiliatewp-bp'),
+				'slug' => 'affiliate-order-details',
+				'show_for_displayed_user' => false, 
+				'parent_url' => trailingslashit( bp_displayed_user_domain() . 'affiliate-area'),
+				'parent_slug' => 'affiliate-area',
+				'position' => 90,
+				'screen_function' => 'affwp_bp_affiliate_order_details',
+				'item_css_id' => 'affiliate-order-details',
+				'user_has_access' => bp_is_my_profile()
+			) );
+		}
 	}
 	add_action( 'affwp_bp_after_add_nav_items', 'affwp_bp_add_order_details_nav_item' );
 	
@@ -612,8 +692,6 @@ if ( class_exists( 'AffiliateWP_Order_Details_For_Affiliates' ) ) {
 		affwp_bp_page( affwp_bp_access_check() );
 		
 		if( affwp_bp_access_check() == '' ) {
-		
-		affwp_bp_affiliate_area_notices();
 		
 		$affiliate_id = affwp_get_affiliate_id();
 		
@@ -635,6 +713,20 @@ if ( class_exists( 'AffiliateWP_Order_Details_For_Affiliates' ) ) {
 if ( class_exists( 'AffiliateWP_Show_Affiliate_Coupons' ) ) {
 
 	/**
+	* Add Coupons Tab to the Hidden Tabs List
+	*
+	* @since  1.0.3
+	*/
+	function affwp_bp_add_coupons_hidden_tab( $hidden_tabs ) {
+		
+		$tab = array( 'coupons' => __( 'Coupons', 'affiliatewp-buddypress' ) );
+		$hidden_tabs = array_merge( $hidden_tabs, $tab );
+		
+		return $hidden_tabs;
+	}
+	add_filter( 'affwp_bp_aff_area_hide_tabs', 'affwp_bp_add_coupons_hidden_tab', 10, 1 );
+	
+	/**
 	* Create Affiliate Area Tab for Affiliate Coupons in BuddyPress Profile
 	*
 	* @since  1.0
@@ -645,19 +737,24 @@ if ( class_exists( 'AffiliateWP_Show_Affiliate_Coupons' ) ) {
 		if ( ! affwp_sac_integration_supported() || ! AffiliateWP_Show_Affiliate_Coupons::get_coupons() ) {
 			return;
 		}
-	
-		// Add the Coupons Tab
-		bp_core_new_subnav_item( array(
-			'name' => __('Coupons', 'affiliatewp-bp'),
-			'slug' => 'affiliate-coupons',
-			'show_for_displayed_user' => false, 
-			'parent_url' => trailingslashit( bp_displayed_user_domain() . 'affiliate-area'),
-			'parent_slug' => 'affiliate-area',
-			'position' => 80,
-			'screen_function' => 'affwp_bp_affiliate_coupons',
-			'item_css_id' => 'affiliate-coupons',
-			'user_has_access' => bp_is_my_profile()
-		) );
+		
+		$hidden_tabs = affiliate_wp()->settings->get( 'affwp_bp_aff_area_hide_tabs' );
+		
+		if( ! $hidden_tabs['coupons'] ) {
+				
+			// Add the Coupons Tab
+			bp_core_new_subnav_item( array(
+				'name' => __('Coupons', 'affiliatewp-bp'),
+				'slug' => 'affiliate-coupons',
+				'show_for_displayed_user' => false, 
+				'parent_url' => trailingslashit( bp_displayed_user_domain() . 'affiliate-area'),
+				'parent_slug' => 'affiliate-area',
+				'position' => 80,
+				'screen_function' => 'affwp_bp_affiliate_coupons',
+				'item_css_id' => 'affiliate-coupons',
+				'user_has_access' => bp_is_my_profile()
+			) );
+		}
 	}
 	add_action( 'affwp_bp_after_add_nav_items', 'affwp_bp_add_coupons_nav_item' );
 	
@@ -677,14 +774,119 @@ if ( class_exists( 'AffiliateWP_Show_Affiliate_Coupons' ) ) {
 		affwp_bp_page( affwp_bp_access_check() );
 		
 		if( affwp_bp_access_check() == '' ) {
-		
-		affwp_bp_affiliate_area_notices();
 			
 		echo '<div id="affwp-affiliate-dashboard">';
 	
 		affiliate_wp()->templates->get_template_part( 'dashboard-tab', 'coupons' );
 	
 		echo '</div>';
+				
+		}
+	}
+}
+
+// Run if AffiliateWP Affiliate Area Tabs is Active
+if ( class_exists( 'AffiliateWP_Affiliate_Area_Tabs' ) ) {
+
+	/**
+	* Create Tab for Custom Affiliate Area Tabs in BuddyPress Profile
+	*
+	* @since  1.0
+	*/
+	function affwp_bp_add_affiliate_area_tabs_nav_item() {
+			
+		// Get tabs
+		$tabs = AffiliateWP_Affiliate_Area_Tabs::get_tabs();
+
+		if ( $tabs ) {
+
+			$tab_position = 120;
+			
+			foreach ( $tabs as $tab ) {
+
+				// Increment sub tab position by ten
+				$tab_position .= 10;
+				$tab_title = $tab['title'];
+				$tab_slug = AffiliateWP_Affiliate_Area_Tabs::make_slug( $tab_title );
+				
+				// Add the Custom Affiliate Area Tab
+				bp_core_new_subnav_item( array(
+					'name' => sprintf( __( '%d', 'affiliatewp-bp' ), $tab_title ),
+					'slug' => 'affiliate-' . $tab_slug,
+					'show_for_displayed_user' => false, 
+					'parent_url' => trailingslashit( bp_displayed_user_domain() . 'affiliate-area'),
+					'parent_slug' => 'affiliate-area',
+					'position' => $tab_position,
+					'screen_function' => 'affwp_bp_affiliate_area_tabs',
+					'item_css_id' => 'affiliate-' . $tab_slug,
+					'user_has_access' => bp_is_my_profile()
+				) );
+			}
+		}
+		
+	}
+	add_action( 'affwp_bp_after_add_nav_items', 'affwp_bp_add_affiliate_area_tabs_nav_item' );
+
+	/**
+	* Load Affiliate URLs
+	*
+	* @since  1.0
+	*/
+	function affwp_bp_affiliate_area_tabs() {
+		add_action( 'bp_template_content', 'affwp_bp_show_affiliate_area_tabs' );
+		bp_core_load_template( apply_filters( 'bp_core_template_plugin', 'members/single/plugins' ) );
+	}
+	
+	// Get Custom Affiliate Area Tabs Template for BuddyPress Profile Tab
+	function affwp_bp_show_affiliate_area_tabs() {
+	
+		affwp_bp_page( affwp_bp_access_check() );
+		
+		if( affwp_bp_access_check() == '' ) {
+			
+			// Get tabs
+			$tabs = AffiliateWP_Affiliate_Area_Tabs::get_tabs();
+
+			if ( $tabs ) {
+
+				$user_domain = bp_displayed_user_domain();
+				$affiliate_area_url = $user_domain . '/affiliate-area';
+				
+				// Get the url of the current page
+				$pageURL = 'http';
+				
+				if( isset( $_SERVER["HTTPS"] ) ) {
+					if ( $_SERVER["HTTPS"] == "on" ) { $pageURL .= "s"; }
+				}
+				
+				$pageURL .= '://';
+				
+				if ($_SERVER['SERVER_PORT'] != '80') {
+					$pageURL .= $_SERVER['SERVER_NAME'].':'.$_SERVER['SERVER_PORT'].$_SERVER['REQUEST_URI'];
+				} else {
+					$pageURL .= $_SERVER['SERVER_NAME'].$_SERVER['REQUEST_URI'];
+				}
+
+				$current_page = $pageURL;
+
+				foreach ( $tabs as $tab ) {
+	
+					$post = get_post( $tab['id'] );
+					$tab_slug = AffiliateWP_Affiliate_Area_Tabs::make_slug( $tab['title'] );
+					$affiliate_tab_url = $affiliate_area_url . '/affiliate-' . $tab_slug;
+					
+					// Check for current tab and display content dynamically
+					if ( $current_page !== $affiliate_tab_url )  {
+						continue;
+					}
+					
+					echo '<div id="affwp-affiliate-dashboard">';
+						echo '<div id="affwp-affiliate-dashboard-tab-'. $tab_slug .'" class="affwp-tab-content">';
+							echo apply_filters( 'the_content', $post->post_content );
+						echo '</div>';
+					echo '</div>';
+				}
+			}
 				
 		}
 	}

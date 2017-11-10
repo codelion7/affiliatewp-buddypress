@@ -37,6 +37,21 @@ class AffiliateWP_BP_Settings {
 					'affwp_bp_aff_area_header' => array(
 						'name' => '<strong>' . __( 'Profile Settings', 'affiliatewp-buddypress' ) . '</strong>',
 						'type' => 'header',
+					),				
+					'affwp_bp_aff_area_hide_tabs' => array(
+						'name' => __( 'Hide Tabs', 'affiliatewp-multi-level-marketing' ),
+						'desc' => '<p class="description">' . __( 'Choose the affiliate area tabs that you wish to hide from the buddypress profile.', 'affiliatewp-multi-level-marketing' ) . '</p>',
+						'type' => 'multicheck',
+						'options' => apply_filters( 'affwp_bp_aff_area_hide_tabs', array(
+							'urls'      => __( 'Affiliate URLs', 'affiliatewp-buddypress' ),
+							'stats'     => __( 'Statistics', 'affiliatewp-buddypress' ),
+							'graphs'    => __( 'Graphs', 'affiliatewp-buddypress' ),
+							'referrals' => __( 'Referrals', 'affiliatewp-buddypress' ),
+							'payouts' 	=> __( 'Payouts', 'affiliatewp-buddypress' ),
+							'visits'    => __( 'Visits', 'affiliatewp-buddypress' ),
+							'creatives' => __( 'Creatives', 'affiliatewp-buddypress' ),
+							'settings'  => __( 'Settings', 'affiliatewp-buddypress' ),							
+						) )
 					),
 					'affwp_bp_aff_area_tab_location' => array(
 						'name' => __( 'Tab Order', 'affiliatewp-buddypress' ),
@@ -54,6 +69,12 @@ class AffiliateWP_BP_Settings {
 						'type' => 'number',
 						'size' => 'small',
 					),
+					'affwp_bp_aff_area_tab_label' => array(
+						'name' => __( 'Tab Label', 'affiliatewp-buddypress' ),
+						'desc' => '<p class="description">' . __( 'Add a custom label for the affiliate area buddypress profile tab.', 'affiliatewp-buddypress' ) . '</p>',
+						'type' => 'text',
+						'size' => 'regular',
+					),
 
 
 				)
@@ -70,12 +91,24 @@ class AffiliateWP_BP_Settings {
 	 *
 	 * @since 1.0
 	 */
-	public function sort_bp_nav_positions( $data, $field ) {
+	// public function sort_bp_nav_positions( $data, $field ) {
+	public function sort_bp_nav_positions( $a, $b ) {
 
+		/*
 		$code = "return strnatcasecmp(\$a['$field'], \$b['$field']);";
 		usort( $data, create_function( '$a,$b', $code ) );
 		
 		return $data;  
+		*/
+		
+		/*
+		if ( $a->position == $b->position ) {
+			return 0;
+		}
+		return ($a->position < $b->position ) ? -1 : 1;
+		*/
+		
+		return strcmp( $a->position, $b->position );	
 	}
 
 	/**
@@ -98,7 +131,8 @@ class AffiliateWP_BP_Settings {
 		}
 		
 		// Sort by position
-		$sorted_bp_nav_positions = $this->sort_bp_nav_positions( $bp_nav_positions, 'position' );
+		// $sorted_bp_nav_positions = $this->sort_bp_nav_positions( $bp_nav_positions, 'position' );
+		usort( $bp_nav_positions, array( $this, 'sort_bp_nav_positions' ) );
 		
 		// DEBUG - return var_dump( $sorted_bp_nav_positions );
 		

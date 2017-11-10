@@ -5,7 +5,7 @@
  * Description: Integrates AffiliateWP with BuddyPress
  * Author: Christian Freeman and The Perfect Plugin Team
  * Author URI: http://theperfectplugin.com
- * Version: 1.2
+ * Version: 1.4
  */
 
 // Exit if accessed directly
@@ -56,7 +56,7 @@ if ( ! class_exists( 'AffiliateWP_BuddyPress' ) ) {
 			if ( ! isset( self::$instance ) && ! ( self::$instance instanceof AffiliateWP_BuddyPress ) ) {
 				
 				self::$instance = new AffiliateWP_BuddyPress;
-				self::$version  = '1.2';
+				self::$version  = '1.3';
 
 				self::$instance->setup_constants();
 				self::$instance->includes();
